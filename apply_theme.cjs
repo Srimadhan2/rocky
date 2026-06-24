@@ -1,0 +1,17 @@
+const fs = require('fs');
+let code = fs.readFileSync('src/app/App.tsx', 'utf8');
+code = code.replace(/bg-apple-darkbg/g, 'bg-background');
+code = code.replace(/bg-apple-panel/g, 'bg-card');
+code = code.replace(/bg-apple-bubble-dark/g, 'bg-secondary');
+code = code.replace(/bg-apple-bubble-light/g, 'bg-secondary');
+code = code.replace(/bg-apple-blue/g, 'bg-primary');
+code = code.replace(/text-apple-blue/g, 'text-primary');
+code = code.replace(/bg-\[#000\]/g, 'bg-card');
+code = code.replace(/bg-\[#0a0d24\]/g, 'bg-background');
+code = code.replace(/text-white\/[0-9]+/g, 'text-muted-foreground');
+code = code.replace(/divide-white\/10/g, 'divide-border');
+code = code.replace(/border-white\/[0-9]+/g, 'border-border');
+code = code.replace(/text-white(?![\/\-\w])/g, 'text-foreground');
+code = code.replace(/bg-black(?![\/\-\w])/g, 'bg-background');
+fs.writeFileSync('src/app/App.tsx', code);
+console.log('Theme applied to App.tsx');

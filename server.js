@@ -8,6 +8,8 @@ import { promises as fs } from 'fs';
 import sqlite3 from 'sqlite3';
 import { open } from 'sqlite';
 import bcrypt from 'bcryptjs';
+import { createClient } from '@supabase/supabase-js';
+
 
 // ─── Gemini AI Setup ───────────────────────────────────────────────────
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
@@ -23,6 +25,18 @@ if (GEMINI_API_KEY) {
 
 const app = express();
 app.use(express.json());
+
+const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
+const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY || '';
+const supabaseAuth = SUPABASE_URL && SUPABASE_ANON_KEY
+  ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+      },
+    })
+  : null;
+
 
 // ─── CORS headers for dev ──────────────────────────────────────────────
 app.use((req, res, next) => {
@@ -783,15 +797,83 @@ async function migrateDatabase() {
 // ═══════════════════════════════════════════════════════════════════════
 
 // Optional auth middleware (non-blocking for demo — will use if token present)
+async function upsertSupabaseUser(authUser) {
+  const metadata = authUser.user_metadata || {};
+  const email = authUser.email || `${authUser.id}@supabase.local`;
+  const name = metadata.full_name || metadata.name || email.split('@')[0] || 'Caregiver';
+  const avatar = metadata.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=6366f1&color=fff&size=120`;
+
+  let user = await db.get(`SELECT * FROM users WHERE id = ?`, [authUser.id]);
+  if (!user && authUser.email) {
+    user = await db.get(`SELECT * FROM users WHERE email = ?`, [authUser.email]);
+  }
+
+  if (user) {
+    const role = metadata.role || user.role || 'primary_caregiver';
+    await db.run(
+      `UPDATE users SET name = ?, email = ?, role = ?, avatar = ? WHERE id = ?`,
+      [name, email, role, avatar, user.id]
+    );
+    return db.get(`SELECT * FROM users WHERE id = ?`, [user.id]);
+  }
+
+  const role = metadata.role || 'primary_caregiver';
+  await db.run(
+    `INSERT INTO users (id, name, email, password, role, avatar, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    [authUser.id, name, email, '', role, avatar, now().toISOString()]
+  );
+  await logAuditEvent(authUser.id, email, 'supabase_register', 'Supabase user synced into Rocky');
+  return db.get(`SELECT * FROM users WHERE id = ?`, [authUser.id]);
+}
+
+async function resolveSupabaseSession(token) {
+  if (!supabaseAuth || !token) return null;
+
+  const { data, error } = await supabaseAuth.auth.getUser(token);
+  if (error || !data?.user) return null;
+
+  const user = await upsertSupabaseUser(data.user);
+  const previousSession = await db.get(
+    `SELECT activePatientId FROM sessions WHERE userId = ? ORDER BY createdAt DESC LIMIT 1`,
+    [user.id]
+  );
+  const activePatientId = previousSession?.activePatientId || 'patient-1';
+
+  await db.run(
+    `INSERT OR REPLACE INTO sessions (token, userId, activePatientId, createdAt) VALUES (?, ?, ?, ?)`,
+    [token, user.id, activePatientId, now().toISOString()]
+  );
+
+  return { user, activePatientId };
+}
+
 const optionalAuth = async (req, res, next) => {
   try {
     const token = req.headers.authorization?.replace('Bearer ', '');
     if (token) {
-      const session = await db.get(`SELECT * FROM sessions WHERE token = ?`, [token]);
-      if (session) {
-        req.userId = session.userId;
-        req.user = await db.get(`SELECT * FROM users WHERE id = ?`, [req.userId]);
-        req.activePatientId = session.activePatientId;
+      const isJwt = token.split('.').length === 3;
+      if (isJwt) {
+        const supabaseSession = await resolveSupabaseSession(token);
+        if (!supabaseSession) {
+          return res.status(401).json({ success: false, message: 'Invalid or expired session.' });
+        }
+        req.user = supabaseSession.user;
+        req.userId = supabaseSession.user.id;
+        req.activePatientId = supabaseSession.activePatientId;
+      } else {
+        const session = await db.get(`SELECT * FROM sessions WHERE token = ?`, [token]);
+        if (session) {
+          req.userId = session.userId;
+          req.user = await db.get(`SELECT * FROM users WHERE id = ?`, [req.userId]);
+          req.activePatientId = session.activePatientId;
+        }
+      }
+    }
+    if (!req.user) {
+      req.userId = 'user-1';
+      req.user = await db.get(`SELECT * FROM users WHERE id = ?`, ['user-1']);
+      if (!req.user) {
+        req.user = { id: 'user-1', name: 'Sarah Mitchell', email: 'sarah@example.com', role: 'primary_caregiver' };
       }
     }
     if (!req.activePatientId) {
@@ -1132,7 +1214,10 @@ app.post('/api/patients/:id/activate', async (req, res) => {
     if (!patient) return res.status(404).json({ success: false, message: 'Patient not found.' });
     const token = req.headers.authorization?.replace('Bearer ', '');
     if (token) {
-      await db.run(`UPDATE sessions SET activePatientId = ? WHERE token = ?`, [id, token]);
+      await db.run(
+        `INSERT OR REPLACE INTO sessions (token, userId, activePatientId, createdAt) VALUES (?, ?, ?, ?)`,
+        [token, req.userId || 'user-1', id, now().toISOString()]
+      );
     }
     req.activePatientId = id;
     const state = await getPatientState(id);

@@ -2,100 +2,101 @@
 
 :root {
   --font-size: 16px;
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-serif: "Fraunces", ui-serif, Georgia, serif;
-  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-serif: Georgia, serif;
+  --font-mono: "SF Mono", Menlo, monospace;
 
-  /* Rocky palette — calm healthcare with deep indigo + emerald */
-  --background: #f6f7fb;
-  --foreground: #0f1430;
-  --card: #ffffff;
-  --card-foreground: #0f1430;
+  /* Apple Light Mode System Colors */
+  --background: #ffffff;
+  --foreground: #000000;
+  --card: #f2f2f7;
+  --card-foreground: #000000;
   --popover: #ffffff;
-  --popover-foreground: #0f1430;
-  --primary: #2a2f7a;            /* deep indigo */
+  --popover-foreground: #000000;
+  --primary: #0a84ff; /* Apple Blue */
   --primary-foreground: #ffffff;
-  --secondary: #eef1fb;
-  --secondary-foreground: #2a2f7a;
-  --muted: #eef0f6;
-  --muted-foreground: #5b6079;
-  --accent: #10b981;             /* emerald */
-  --accent-foreground: #04221a;
-  --destructive: #e25e5e;
+  --secondary: #e5e5ea; /* Apple Gray */
+  --secondary-foreground: #000000;
+  --muted: #f2f2f7;
+  --muted-foreground: #8e8e93; /* System Gray */
+  --accent: #30d158; /* Apple Green */
+  --accent-foreground: #ffffff;
+  --destructive: #ff453a;
   --destructive-foreground: #ffffff;
-  --border: rgba(15, 20, 48, 0.08);
-  --input: transparent;
-  --input-background: #f1f3fa;
-  --switch-background: #cbced4;
+  --border: rgba(0, 0, 0, 0.1);
+  --input: rgba(0, 0, 0, 0.05);
+  --input-background: rgba(0, 0, 0, 0.05);
+  --switch-background: #e5e5ea;
   --font-weight-medium: 500;
   --font-weight-normal: 400;
-  --ring: #6366f1;
+  --ring: #0a84ff;
 
-  /* Rocky-specific tokens */
-  --indigo-deep: #1e2261;
-  --indigo: #2a2f7a;
-  --indigo-soft: #7c83d6;
-  --sky: #79b8ff;
-  --emerald: #10b981;
-  --emerald-soft: #a7f3d0;
-  --lavender: #c7baff;
-  --cyan-glow: #67e8f9;
-  --warm: #f59e0b;
-  --alert: #ef6b6b;
-  --frost: #fafbff;
+  /* Apple-specific tokens for backward compatibility if used */
+  --indigo-deep: #000000;
+  --indigo: #0a84ff;
+  --indigo-soft: #8e8e93;
+  --sky: #5ac8fa;
+  --emerald: #30d158;
+  --emerald-soft: #34c759;
+  --lavender: #af52de;
+  --cyan-glow: #32ade6;
+  --warm: #ff9500;
+  --alert: #ff3b30;
+  --frost: #f2f2f7;
 
-  --chart-1: #2a2f7a;
-  --chart-2: #10b981;
-  --chart-3: #79b8ff;
-  --chart-4: #c7baff;
-  --chart-5: #f59e0b;
-  --radius: 1rem;
+  --chart-1: #0a84ff;
+  --chart-2: #30d158;
+  --chart-3: #5ac8fa;
+  --chart-4: #af52de;
+  --chart-5: #ff9500;
+  --radius: 1.25rem; /* 20px - Closer to Apple squircle */
 
-  --sidebar: #ffffff;
-  --sidebar-foreground: #0f1430;
-  --sidebar-primary: #2a2f7a;
+  --sidebar: #f2f2f7;
+  --sidebar-foreground: #000000;
+  --sidebar-primary: #0a84ff;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #eef1fb;
-  --sidebar-accent-foreground: #2a2f7a;
-  --sidebar-border: rgba(15, 20, 48, 0.08);
-  --sidebar-ring: #6366f1;
+  --sidebar-accent: #e5e5ea;
+  --sidebar-accent-foreground: #000000;
+  --sidebar-border: rgba(0, 0, 0, 0.1);
+  --sidebar-ring: #0a84ff;
 }
 
 .dark {
-  --background: #0a0d24;
-  --foreground: #f3f4ff;
-  --card: #121633;
-  --card-foreground: #f3f4ff;
-  --popover: #121633;
-  --popover-foreground: #f3f4ff;
-  --primary: #8b91f0;
-  --primary-foreground: #0a0d24;
-  --secondary: #1a1f44;
-  --secondary-foreground: #f3f4ff;
-  --muted: #1a1f44;
-  --muted-foreground: #9ea3c4;
-  --accent: #34d399;
-  --accent-foreground: #04221a;
-  --destructive: #e25e5e;
+  /* Apple Dark Mode System Colors */
+  --background: #000000;
+  --foreground: #ffffff;
+  --card: #1c1c1e; /* Apple Panel */
+  --card-foreground: #ffffff;
+  --popover: #1c1c1e;
+  --popover-foreground: #ffffff;
+  --primary: #0a84ff; /* Apple Blue remains consistent or slightly lighter */
+  --primary-foreground: #ffffff;
+  --secondary: #2c2c2e; /* Darker gray for bubbles/cards */
+  --secondary-foreground: #ffffff;
+  --muted: #1c1c1e;
+  --muted-foreground: #8e8e93; /* System Gray */
+  --accent: #30d158;
+  --accent-foreground: #ffffff;
+  --destructive: #ff453a;
   --destructive-foreground: #ffffff;
-  --border: rgba(243, 244, 255, 0.08);
-  --input: rgba(243, 244, 255, 0.06);
-  --ring: #8b91f0;
+  --border: rgba(255, 255, 255, 0.1);
+  --input: rgba(255, 255, 255, 0.1);
+  --ring: #0a84ff;
   --font-weight-medium: 500;
   --font-weight-normal: 400;
-  --chart-1: #8b91f0;
-  --chart-2: #34d399;
-  --chart-3: #79b8ff;
-  --chart-4: #c7baff;
-  --chart-5: #f59e0b;
-  --sidebar: #121633;
-  --sidebar-foreground: #f3f4ff;
-  --sidebar-primary: #8b91f0;
-  --sidebar-primary-foreground: #0a0d24;
-  --sidebar-accent: #1a1f44;
-  --sidebar-accent-foreground: #f3f4ff;
-  --sidebar-border: rgba(243, 244, 255, 0.08);
-  --sidebar-ring: #8b91f0;
+  --chart-1: #0a84ff;
+  --chart-2: #30d158;
+  --chart-3: #5ac8fa;
+  --chart-4: #af52de;
+  --chart-5: #ff9500;
+  --sidebar: #1c1c1e;
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: #0a84ff;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #2c2c2e;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: rgba(255, 255, 255, 0.1);
+  --sidebar-ring: #0a84ff;
 }
 
 @theme inline {
@@ -136,6 +137,13 @@
   --color-warm: var(--warm);
   --color-alert: var(--alert);
   --color-frost: var(--frost);
+  --color-apple-blue: #0a84ff;
+  --color-apple-green: #30d158;
+  --color-apple-gray: #e5e5ea;
+  --color-apple-darkbg: #000000;
+  --color-apple-panel: #1c1c1e;
+  --color-apple-bubble-dark: #262628;
+  --color-apple-bubble-light: #e5e5ea;
   --radius-sm: calc(var(--radius) - 8px);
   --radius-md: calc(var(--radius) - 4px);
   --radius-lg: var(--radius);
@@ -171,8 +179,8 @@
   }
 
   h1, h2, h3, h4 {
-    font-family: var(--font-serif);
-    font-weight: 400;
+    font-family: var(--font-sans);
+    font-weight: 600;
     letter-spacing: -0.02em;
     line-height: 1.1;
   }

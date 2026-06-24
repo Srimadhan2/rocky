@@ -1,6 +1,6 @@
 import { type FormEvent, useState } from "react";
 import { HeartPulse, Eye, EyeOff } from "lucide-react";
-import { supabase } from "../../supabase-client";
+import { isSupabaseConfigured, supabase } from "../../supabase-client";
 
 type LoginProps = {
   onSwitchToSignup: () => void;
@@ -23,7 +23,7 @@ export default function Login({ onSwitchToSignup, onDevLogin }: LoginProps) {
     const trimmedEmail = email.trim();
 
     try {
-      const { error: authError } = await supabase.auth.signInWithPassword({
+      const { data, error: authError } = await supabase.auth.signInWithPassword({
         email: trimmedEmail,
         password,
       });
@@ -41,7 +41,19 @@ export default function Login({ onSwitchToSignup, onDevLogin }: LoginProps) {
         } else {
           setError(authError.message);
         }
+        return;
       }
+
+      if (data?.session || data?.user) {
+        return;
+      }
+
+      if (!isSupabaseConfigured) {
+        onDevLogin?.();
+        return;
+      }
+
+      setError("Unable to sign in right now. Please try again.");
     } catch {
       setError("An unexpected error occurred. Please try again.");
     }

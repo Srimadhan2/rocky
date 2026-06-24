@@ -1,6 +1,6 @@
 import { type FormEvent, useState } from "react";
 import { HeartPulse, Eye, EyeOff, CheckCircle } from "lucide-react";
-import { supabase } from "../../supabase-client";
+import { isSupabaseConfigured, supabase } from "../../supabase-client";
 
 type SignupProps = {
   onSwitchToLogin: () => void;
@@ -63,9 +63,12 @@ export default function Signup({ onSwitchToLogin, onDevLogin }: SignupProps) {
         } else {
           setError(signupError.message);
         }
-      } else if (data.session) {
+      } else if (data.session || data.user) {
         // Auto-signed in (email confirmation disabled) — session will be picked up by App.tsx
         setMessage("Account created successfully! Redirecting…");
+      } else if (!isSupabaseConfigured) {
+        onDevLogin?.();
+        setMessage("Account created. Continuing in demo mode because sign-in is not configured.");
       } else {
         // Email confirmation is enabled — try auto-login as fallback
         const { error: loginError } = await supabase.auth.signInWithPassword({
